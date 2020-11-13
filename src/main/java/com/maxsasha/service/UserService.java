@@ -10,28 +10,29 @@ import com.maxsasha.entity.User;
 
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
-	private final UserRepository dbActions;
+	private final UserRepository userRepository;
 
 	public List<User> getUsers() {
-		return dbActions.findAll();
+		return userRepository.findAll();
 	}
 
 	public Optional<User> getUser(String id) {
-		return dbActions.findById(id);
+		return userRepository.findById(id);
 	}
 
 	public void create(User user) {
-		dbActions.save(user);
+		userRepository.save(user);
 	}
 
 	public User edit(User user) {
-		return dbActions.save(user);
+		return userRepository.save(user);
 	}
 
 	public void delete(String id) {
-		dbActions.deleteById(id);
+		userRepository.deleteById(id);
 	}
 }
