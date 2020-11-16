@@ -1,8 +1,10 @@
 package com.maxsasha.api.controller;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.maxsasha.api.dto.UserDto;
@@ -24,46 +27,43 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService service;
 
-	@GetMapping("/users")
-	public List<UserDto> getUsers() {
+	@GetMapping
+	public ResponseEntity<Map<String, Object>> getUsers(@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "3") int size) {
 		log.info("Received request to get users ");
-		List<UserDto> users = UserTransformer.transform(service.getUsers());
-		log.info("Request to get users successfully completed. Users count:{}", users.size());
-		return users;
+		Page<User> pageUsers = service.getUsers(PageRequest.of(page, size));
+		Map<String, Object> response = new HashMap<>(); 
+		response.put("users", UserTransformer.transform(pageUsers.getContent()));
+		response.put("Current page", pageUsers.getNumber());
+		response.put("Items count", pageUsers.getTotalElements());
+		response.put("Pages сount", pageUsers.getTotalPages());
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	@PostMapping("/users")
+	@PostMapping
 	public void create(@RequestBody UserDto userDto) {
-		log.info("Received request to create user");
+		log.info("Received request to create user with info: name: {}, email: {}", userDto.getName(),
+				userDto.getEmail());
 		service.create(UserTransformer.transform(userDto));
-		log.info("Request to create successfuly completed with info: name:{} , email:{}", userDto.getName(),userDto.getEmail());
 	}
 
-	@PutMapping("/users/{id}")
+	@PutMapping("/{id}")
 	public ResponseEntity<Object> put(@PathVariable String id, @RequestBody UserDto userDto) {
-		log.info("Received request to update user id:{}", id);
-		Optional<User> user = service.getUser(id);
-		if (user.isPresent()) {
-			UserDto updatedUser = UserTransformer.transform(
-					service.edit(User.builder().id(id).name(userDto.getName()).email(userDto.getEmail()).build()));
-			log.info("Request to update successfuly completed with info: id:{},  name:{}, email:{}", id,
-					userDto.getName(), userDto.getEmail());
-			return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
-		} else {
-			log.info("Request to update successfuly completed with info: user not found");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
+		log.info("Received request to update user with info id: {}, name: {},email: {} ", id, userDto.getName(),
+				userDto.getEmail());
+		userDto.setId(id);
+		UserDto updatedUser = UserTransformer.transform(service.edit(UserTransformer.transform(userDto)));
+		return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
 	}
 
-	@DeleteMapping("/users/{id}")
+	@DeleteMapping("/{id}")
 	public void delete(@PathVariable("id") String id) {
 		log.info("Received request to delete user id:{}", id);
 		service.delete(id);
-		log.info("Request to delete successfuly completed");
 	}
 }

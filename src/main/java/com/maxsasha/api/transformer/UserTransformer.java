@@ -9,22 +9,14 @@ import com.maxsasha.entity.User;
 public class UserTransformer {
 
 	public static User transform(UserDto dto) {
-		return User.builder()
-				.id(dto.getId())
-				.name(dto.getName())
-				.email(dto.getEmail())
-				.build();
+		return new User(dto.getId(),dto.getName(),dto.getEmail());
 	}
-	
+
 	public static UserDto transform(User user) {
-		return UserDto.builder()
-				.id(user.getId())
-				.name(user.getName())
-				.email(user.getEmail())
-				.build();
+		return new UserDto(user.getId(),user.getName(),user.getEmail());
 	}
-	public static List<UserDto> transform(List<User> users)
-	{
+
+	public static List<UserDto> transform(List<User> users) {
 		return users.stream().map(m -> transform(m)).collect(Collectors.toList());
 	}
 }
