@@ -1,8 +1,5 @@
 package com.maxsasha.api.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.maxsasha.api.dto.UserDto;
-import com.maxsasha.api.transformer.UserTransformer;
+import static com.maxsasha.api.transformer.UserTransformer.*;
 import com.maxsasha.entity.User;
 import com.maxsasha.service.UserService;
 
@@ -29,32 +26,27 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService service;
-
+	
 	@GetMapping
-	public List<String> getUsers(@RequestParam(defaultValue = "0") int page,
+	public Page<User> getUsers(@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "3") int size) {
 		log.info("Received request to get users. Page size: {}, current Page: {}", size, page);
-		Page<User> pageUsers = service.getUsers(PageRequest.of(page, size));
-		List<String> pageInfo = new ArrayList<>();
-		pageInfo.add(String.format("users: %s", UserTransformer.transform(pageUsers.getContent())));
-		pageInfo.add(String.format("Current page: %s", pageUsers.getNumber()));
-		pageInfo.add(String.format("Items count: %s", pageUsers.getTotalElements()));
-		pageInfo.add(String.format("Pages сount: %s", pageUsers.getTotalPages()));
-		return pageInfo;
+		return service.getUsers(PageRequest.of(page, size));
 	}
 
 	@PostMapping
 	public UserDto create(@RequestBody UserDto userDto) {
 		log.info("Received request to create user with info: name: {}, email: {}", userDto.getName(),
 				userDto.getEmail());
-		return UserTransformer.transform(service.create(UserTransformer.transform(userDto)));
+		User user = service.create(transform(userDto,userDto.getId()));
+		return transform(user,user.getId());
 	}
 
 	@PutMapping("/{id}")
 	public UserDto put(@PathVariable String id, @RequestBody UserDto userDto) {
 		log.info("Received request to update user with info id: {}, name: {}, email: {} ", id, userDto.getName(),
 				userDto.getEmail());
-		return UserTransformer.transform(service.edit(UserTransformer.transform(userDto, id)));
+		return transform(service.edit(transform(userDto, id)),id);
 	}
 
 	@DeleteMapping("/{id}")
