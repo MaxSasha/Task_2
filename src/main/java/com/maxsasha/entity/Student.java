@@ -12,11 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Data
-@Document("users")
-public class User {
+@Document("students")
+public class Student {
 	@Id
 	private String id;
 	private String name;
-	private String email;
-
+	private String address;
 }
