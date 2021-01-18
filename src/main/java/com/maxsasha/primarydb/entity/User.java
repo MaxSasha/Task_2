@@ -1,4 +1,4 @@
-package com.maxsasha.entity;
+package com.maxsasha.primarydb.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Data
-@Document("users")
+@Document(collection = "users")
 public class User {
-	@Id
-	private String id;
-	private String name;
-	private String email;
+    @Id
+    private String id;
+    private String name;
+    private String email;
 }

@@ -1,4 +1,4 @@
-package com.maxsasha.api.dto;
+package com.maxsasha.primarydb.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class UserDto {
-	private String id;
-	private String name;
-	private String email;
+    private String id;
+    private String name;
+    private String email;
 }
